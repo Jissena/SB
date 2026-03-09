@@ -268,7 +268,7 @@ local tBuy,cBuy  =buatToggle(pgFarm,64,"Auto Buy Ingredient")
 local tSell,cSell=buatToggle(pgFarm,104,"Auto Sell Marshmallow")
 
 -- BUY BOX
-local jumlahBeli=1
+local jumlahBeli=0
 local SLIDER_MIN,SLIDER_MAX=0,50
 
 local buyBox=new("Frame",pgFarm,{
@@ -318,8 +318,8 @@ corner(buyBtn,6)
 -- Fungsi update slider
 local function updateSlider(ratio)
 	ratio=math.clamp(ratio,0,1)
-	jumlahBeli=math.floor(ratio*(SLIDER_MAX-SLIDER_MIN)+0.5)
-	local pct=(jumlahBeli-SLIDER_MIN)/(SLIDER_MAX-SLIDER_MIN)
+	jumlahBeli=math.round(ratio*SLIDER_MAX)
+	local pct=jumlahBeli/SLIDER_MAX
 	fill.Size=UDim2.new(pct,0,1,0)
 	knob.Position=UDim2.new(pct,-9,0.5,-9)
 	jumlahLbl.Text=jumlahBeli.."/"..SLIDER_MAX
@@ -593,6 +593,7 @@ task.spawn(function()
 			if ok then SP=s end
 		end
 		if not SP then continue end
+		-- Hitung set yang sudah ada (ambil minimum stok ketiga bahan)
 		local jW,jS,jG=0,0,0
 		for _,obj in pairs(bp:GetChildren()) do
 			local n=string.lower(obj.Name)
@@ -600,13 +601,14 @@ task.spawn(function()
 			if string.find(n,"sugar",1,true)   then jS+=1 end
 			if string.find(n,"gelatin",1,true) then jG+=1 end
 		end
-		local kW=math.max(0,jumlahBeli-jW)
-		local kS=math.max(0,jumlahBeli-jS)
-		local kG=math.max(0,jumlahBeli-jG)
-		if kW>0 or kS>0 or kG>0 then
-			for _=1,kW do SP:FireServer("Water");           task.wait(0.08) end
-			for _=1,kS do SP:FireServer("Sugar Block Bag"); task.wait(0.08) end
-			for _=1,kG do SP:FireServer("Gelatin");         task.wait(0.08) end
+		-- Kurang berapa set lagi yang perlu dibeli
+		local kurang=math.max(0, jumlahBeli - math.min(jW,jS,jG))
+		if kurang>0 then
+			for _=1,kurang do
+				SP:FireServer("Water");           task.wait(0.05)
+				SP:FireServer("Sugar Block Bag"); task.wait(0.05)
+				SP:FireServer("Gelatin");         task.wait(0.05)
+			end
 		end
 	end
 end)
