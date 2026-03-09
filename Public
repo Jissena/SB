@@ -473,9 +473,12 @@ buyBtn.MouseButton1Click:Connect(function()
 	if not ok or not SP then return end
 	buyBtn.Text="Buying 0/"..jumlahBeli; buyBtn.BackgroundColor3=Color3.fromRGB(40,40,40)
 	for i=1,jumlahBeli do
-		SP:FireServer("Water"); task.wait(0.08)
-		SP:FireServer("Sugar Block Bag"); task.wait(0.08)
-		SP:FireServer("Gelatin"); task.wait(0.08)
+		SP:FireServer("Water")
+		task.wait(0.3)
+		SP:FireServer("Sugar Block Bag")
+		task.wait(0.3)
+		SP:FireServer("Gelatin")
+		task.wait(0.3)
 		buyBtn.Text="Buying "..i.."/"..jumlahBeli
 	end
 	buyBtn.Text="Done ✓"; buyBtn.BackgroundColor3=Color3.fromRGB(50,50,50)
